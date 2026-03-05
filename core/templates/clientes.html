@@ -1,0 +1,51 @@
+{% load bootstrap5 %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes</title>
+    {% bootstrap_css %}
+</head>
+<body>
+  <div class="container">
+    <h1>Lista de Clientes</h1>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Sobrenome</th>
+                <th>Telefone</th>
+                <th>Email</th>
+                <th>Editar</th>
+                <th>Excluir</th>
+            </tr>
+        </thead>
+        {% for c in cli %}
+        <tbody>
+          <tr>
+            <td>{{ c.nome }}</td>
+            <td>{{ c.sobrenome }}</td>
+            <td>{{ c.telefone }}</td>
+            <td>{{ c.email }}</td>
+            <td>
+              <form action="{% url 'urleditaCliente' c.id %}">
+                <input type="submit" value="📝" alt="Editar" class="btn btn-warning">
+              </form>
+            </td>
+            <td>
+              <form action="{% url 'urlapagaCliente' c.id %}">
+                <input type="submit" value="🗑️"  alt="Exluir" class="btn btn-danger">
+              </form>
+            </td>
+          </tr>
+        </tbody>
+        {% endfor %}
+      </table>
+      <form action="{% url 'urlsalvarClientes' %}">
+        <input type="submit" value="➕ Novo cliente" class="btn btn-primary">
+      </form>
+<div>
+</body>
+</html>
