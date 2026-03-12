@@ -6,7 +6,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 def index(request):
-    context = {'curso': 'Desenvolvimento de Sistemas'}
+    produtos = Produto.objects.all()
+    context = {'produtos': produtos}
     return render(request, 'index.html', context)
 
 def contato(request):
