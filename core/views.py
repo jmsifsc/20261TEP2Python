@@ -4,6 +4,13 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from .forms import ProdutoForm
+
+import io
+import urllib, base64
+import pandas as pd
+import matplotlib as plt
+
 
 def index(request):
     produtos = Produto.objects.all()
@@ -91,4 +98,34 @@ def entrar(request):
 def sair(request):
     logout(request)
     return redirect('urlentrar')
+
+def livros_mais_avaliados_view(request):
+    top_10_livros = df['title'].value_counts().nlargest(10)
+    plt.figure(figsize=(12, 8))
+    top_10_livros.sort_values().plot(kind='barh', color='coral')
+    plt.title('Top 10 Livros com Mais Avaliações')
+    plt.xlabel('Número de Avaliações')
+    plt.ylabel('Título do Livro')
+    plt.tight_layout()
+    grafico_top_livros = plot_to_base64(plt.gcf())
+    plt.close()
     
+    context = {
+        'grafico_top_livros': grafico_top_livros,
+        'total_avaliacoes': len(df)
+    }
+    return render(request, 'core/dashboard.html', context)
+
+def distribuicao_das_notas_view(request):
+    df = get_dataframe()
+    plt.figure(figsize=(10, 6))
+    df['review_score'].value_counts().sort_index().plot(kind='bar', color='skyblue')
+    plt.title('Distribuição das Notas das Avaliações')
+    plt.xlabel('Nota (Score)')
+    plt.ylabel('Quantidade de Avaliações')
+    plt.grid(axis='y', linestyle='--')
+    plt.tight_layout()
+    grafico_distribuicao_notas = plot_to_base64(plt.gcf())
+    plt.close()
+    context = {'grafico_distribuicao_notas': grafico_distribuicao_notas,}
+    return render(request, 'core/dashboard.html', context)
