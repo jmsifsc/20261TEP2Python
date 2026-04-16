@@ -1,24 +1,27 @@
-{% {% extends 'global/base.html' %}%}
+{% extends 'global/base.html' %}
 
 {% block title %}
+  aaaa
+{% endblock %}
 
-{% endblock  %}
-
-{%block content%}
-<div class="container-fluid mt-4">
+{% block content %}
+  <div class="container-fluid mt-4">
     <h1>Análise das avaliações de livros</h1>
-    <hr/>
+    <hr />
 
-<div class="row">
-    <div class="col-lg-6 mb-4">
-{%if grafico_distribuicao_notas%}
-<img src="data:image/png;base64,{{grafico_distribuicao_notas}}" alt="aaa" />
-{% endif %}
-</div>
-<div class='container-fluid mt-4'>
     <div class="row">
-    {%if grafico_distribuicao_notas%}
-    <img src="data:image/png;base64,{{grafico_top_livros}}" alt="aaa" />
-    {% endif %}
+      <div class="col-lg-6 mb-4">
+        {% if grafico_distribuicao_notas %}
+          <img src="data:image/png;base64,{{ grafico_distribuicao_notas }}" alt="aaa" />
+        {% endif %}
+      </div>
+      <div class="container-fluid mt-4">
+        <div class="row">
+          {% if grafico_distribuicao_notas %}
+            <img src="data:image/png;base64,{{ grafico_top_livros }}" alt="aaa" />
+          {% endif %}
+        </div>
+      </div>
     </div>
+  </div>
 {% endblock %}

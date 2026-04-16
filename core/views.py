@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .forms import ProdutoForm
+# from .forms import ProdutoForm
 
 import io
 import urllib, base64
