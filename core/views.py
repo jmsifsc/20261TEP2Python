@@ -169,3 +169,25 @@ def distribuicao_das_notas_view(df):
     grafico_distribuicao_notas = plot_to_base64(plt.gcf())
     plt.close()
     return grafico_distribuicao_notas
+
+def sentimentos_reviews_view(df):
+    boas = ['good', 'great','excellent', 'I loved', 'I recommend' ]
+    ruins = ['bad','terrible','disappointing','I didn\t like it','terrible']
+        
+    def classificar(texto):
+        texto = str(texto).lower()
+        if any(p in texto for p in boas): return 'positivo'
+        if any(p in texto for p in ruins): return 'Negativo'
+        return 'Neutro'
+
+    df['sentimento'] = df ['review_summary'], fillna('').apply(classificar)
+    contagem = df['sentimento'].value_counts()
+
+    plt.fingure(figsizer=(10,6))
+    plt.pie(contagem, autopct='%1.1f%%', colors=['lightgreen','lightcoral','lightskyblue'])
+    plt.title('Distribuição de Sentimentos nos Sumários ds Avaliações')
+    plt.tight_layout()
+    grafico_sentimento = plot_to_base64(plt.gcf())
+    plt.close()
+    return grafico_sentimento
+
