@@ -3,6 +3,7 @@ from .views import index, contato, produtos, clientes
 from .views import salvarClientes, editaCliente, apagaCliente, entrar, sair
 from django.conf import settings
 from django.conf.urls.static import static
+from . import views
 
 urlpatterns = [
     path('', index, name="urlindex"),
@@ -14,6 +15,7 @@ urlpatterns = [
     path('apagaCliente/<int:id>', apagaCliente, name="urlapagaCliente"),
     path('entrar', entrar, name="urlentrar"),
     path('sair', sair, name="urlsair"),
+    path('dashboard', views.dashboard, name="urldashboard"),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Produto, Cliente
+from .models import Produto, Cliente, Avaliacao
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -9,7 +9,9 @@ from django.contrib.auth.decorators import login_required
 import io
 import urllib, base64
 import pandas as pd
-import matplotlib as plt
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
 
 
 def index(request):
@@ -99,7 +101,51 @@ def sair(request):
     logout(request)
     return redirect('urlentrar')
 
-def livros_mais_avaliados_view(request):
+# GRAFICOS
+# -----------------------------------------
+def get_dataframe():
+    # Busca todos os dados do banco e retorna um DataFrame do Pandas
+    avaliacoes = Avaliacao.objects.all().values()
+    df = pd.DataFrame(list(avaliacoes))
+    return df
+
+def plot_to_base64(fig):
+    # Converte uma figura Matplotlib para uma string base64 para ser usada no HTML
+    buf = io.BytesIO()
+    fig.savefig(buf, format='png')
+    buf.seek(0)
+    string = base64.b64encode(buf.read())
+    return urllib.parse.quote(string)
+
+def dashboard(request):
+    df = get_dataframe()
+    grafico_distribuicao_notas = distribuicao_das_notas_view(df)
+    grafico_top_livros, tam = livros_mais_avaliados_view(df)
+    grafico_usuarios_mais_ativos = usuarios_mais_ativos_view(df)
+
+    context = {
+        'grafico_distribuicao_notas': grafico_distribuicao_notas,
+        'grafico_top_livros': grafico_top_livros,
+        'total_avaliacoes': tam,
+        'grafico_usuarios_mais_ativos': grafico_usuarios_mais_ativos,
+    }
+
+    return render(request, 'dashboard.html', context)
+
+def usuarios_mais_ativos_view(df):
+    mais_ativos = df['profile_name'].value_counts().nlargest(15)
+    plt.figure(figsize=(10, 6))
+    mais_ativos.sort_values().plot(kind='barh', color='blue')
+    plt.title('Top 15 Usuários Mais Ativos')
+    plt.xlabel('Número de Avaliações')
+    plt.ylabel('Usuário')
+    plt.tight_layout()
+    grafico_usuarios_mais_ativos = plot_to_base64(plt.gcf())
+    plt.close()
+
+    return grafico_usuarios_mais_ativos
+
+def livros_mais_avaliados_view(df):
     top_10_livros = df['title'].value_counts().nlargest(10)
     plt.figure(figsize=(12, 8))
     top_10_livros.sort_values().plot(kind='barh', color='coral')
@@ -109,15 +155,10 @@ def livros_mais_avaliados_view(request):
     plt.tight_layout()
     grafico_top_livros = plot_to_base64(plt.gcf())
     plt.close()
-    
-    context = {
-        'grafico_top_livros': grafico_top_livros,
-        'total_avaliacoes': len(df)
-    }
-    return render(request, 'core/dashboard.html', context)
 
-def distribuicao_das_notas_view(request):
-    df = get_dataframe()
+    return grafico_top_livros, len(df)
+
+def distribuicao_das_notas_view(df):
     plt.figure(figsize=(10, 6))
     df['review_score'].value_counts().sort_index().plot(kind='bar', color='skyblue')
     plt.title('Distribuição das Notas das Avaliações')
@@ -127,5 +168,4 @@ def distribuicao_das_notas_view(request):
     plt.tight_layout()
     grafico_distribuicao_notas = plot_to_base64(plt.gcf())
     plt.close()
-    context = {'grafico_distribuicao_notas': grafico_distribuicao_notas,}
-    return render(request, 'core/dashboard.html', context)
+    return grafico_distribuicao_notas
